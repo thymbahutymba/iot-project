@@ -1,0 +1,6 @@
+1590394658009:help
+1590394677828:echo
+1590394744775:mvn package -f "/home/thymbahutymba/CloudApplication/pom.xml"
+1590394752464:exit
+1590400167287:mvn package -f "/home/thymbahutymba/CloudApplication/pom.xml"
+1590400170575:exit

@@ -14,14 +14,14 @@
 #define LOG_MODULE "Ambient sensor"
 #define LOG_LEVEL LOG_LEVEL_DBG
 
-#define SERVER_EP ("coap://[fd00::302:304:506:708]:5800")
+#define SERVER_EP ("coap://[fd00::1]:5683")
 #define SERVER_REGISTRATION ("/registration")
 
 extern coap_resource_t res_temperature;
 // extern coap_resource_t res_humidity;
 
 static coap_message_type_t result = COAP_TYPE_RST;
-static char payload[2048];
+//static char payload[2048];
 
 PROCESS(ambient_sensor, "Ambient sensor server");
 AUTOSTART_PROCESSES(&ambient_sensor);
@@ -32,6 +32,7 @@ static void response_handler(coap_message_t *response)
     result = response->type;
 }
 
+/*
 static char *ser_resource(coap_resource_t *r)
 {
     char methods[70] = "[ ";
@@ -66,7 +67,7 @@ static char *ser_resource(coap_resource_t *r)
 
     return result;
 }
-
+*/
 /*
 {
     "resources": [
@@ -74,6 +75,7 @@ static char *ser_resource(coap_resource_t *r)
     ],
 }
 */
+/*
 void ser_resources(coap_resource_t **res)
 {
     char *ser_res[sizeof(res) / sizeof(coap_resource_t *)];
@@ -101,14 +103,14 @@ void ser_resources(coap_resource_t **res)
 
     //return payload;
 }
-
+*/
 PROCESS_THREAD(ambient_sensor, ev, data)
 {
     static coap_endpoint_t server_ep;
     static coap_message_t request[1];
-    static coap_resource_t *resources[] = {
-        &res_temperature,
-    };
+    //static coap_resource_t *resources[] = {
+    //    &res_temperature,
+    //};
 
     PROCESS_BEGIN();
         
@@ -118,17 +120,19 @@ PROCESS_THREAD(ambient_sensor, ev, data)
     //if ((payload = ser_resources(resources)) == NULL) {
     //    LOG_ERR("malloc error");
     //}
-    ser_resources(resources);
+    //ser_resources(resources);
     
     coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
 
-    //do {
-        coap_init_message(request, COAP_TYPE_CON, COAP_POST, 0);
+    do {
+        coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
         coap_set_header_uri_path(request, (const char *)&SERVER_REGISTRATION);
-        coap_set_payload(request, (uint8_t *)payload, sizeof(payload) - 1);
+        //coap_set_payload(request, (uint8_t *)payload, sizeof(payload) - 1);
 
         COAP_BLOCKING_REQUEST(&server_ep, request, response_handler);
-    //} while (result == COAP_TYPE_RST);
+    } while (result == COAP_TYPE_RST);
+
+    LOG_DBG("while\n");
 
     //if (payload)
     //    free((void *)payload);

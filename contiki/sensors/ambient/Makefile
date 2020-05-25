@@ -1,7 +1,7 @@
 CONTIKI_PROJECT = ambient
 all: $(CONTIKI_PROJECT)
 
-CONTIKI = ../../../../
+CONTIKI = ../../../../../
 MODULES_REL += ./resources
 
 include $(CONTIKI)/Makefile.dir-variables
