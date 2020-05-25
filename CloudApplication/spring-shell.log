@@ -1,6 +1,47 @@
-1590394658009:help
-1590394677828:echo
-1590394744775:mvn package -f "/home/thymbahutymba/CloudApplication/pom.xml"
-1590394752464:exit
-1590400167287:mvn package -f "/home/thymbahutymba/CloudApplication/pom.xml"
-1590400170575:exit
+1590418765216:help
+1590418767673:print-resource
+1590419351230:exit
+1590420808179:print-resource
+1590420924383:exit
+1590421024521:[C
+1590421059100:exit
+1590421417095:help
+1590421418923:print-resource
+1590421827480:help
+1590421829094:print-resource
+1590421980161:exit
+1590422180593:print-resource
+1590422181894:exit
+1590422236440:print-resource
+1590422238395:exit
+1590422836455:print-resource
+1590422880877:exit
+1590424289241:print-resource
+1590424318373:set-alias -a prova -r [fd00:0:0:0:202:2:2:2]/sensors/ambient/temperature
+1590424322044:print-resource
+1590424387672:exit
+1590424435249:print-resource
+1590424538065:set-alias prova [fd00:0:0:0:202:2:2:2]/sensors/ambient/temperature
+1590424635262:exit
+1590424670074:print-resource
+1590424686531:set-alias -a prova -r [fd00:0:0:0:202:2:2:2]/sensors/ambient/temperature
+1590424688873:print-resource
+1590424892880:exit
+1590424940041:print-resource
+1590424985981:quit
+1590425029578:print-resource
+1590425740965:exit
+1590427054353:print-resources
+1590427514749:exit
+1590427595709:print-resources
+1590429006170:quit
+1590429035884:print-resources
+1590429071882:stacktrace
+1590429133297:quit
+1590429175820:print-resources
+1590429358791:quit
+1590429393067:print-resources
+1590429426293:quit
+1590429459751:print-resources
+1590429482227:set-alias -a cucina -r [fd00:0:0:0:202:2:2:2]/sensors/ambient/temperature
+1590429484685:print-resources

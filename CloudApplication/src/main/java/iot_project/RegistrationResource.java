@@ -1,7 +1,9 @@
 package iot_project;
 
-import java.net.InetAddress;
+import iot_project.contiki.*;
 
+import java.net.InetAddress;
+import java.util.logging.Logger;
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapResource;
 import org.eclipse.californium.core.CoapResponse;
@@ -12,29 +14,34 @@ import org.eclipse.californium.core.coap.Response;
 import org.eclipse.californium.core.server.resources.CoapExchange;
 
 public class RegistrationResource extends CoapResource {
-    // private public Constructor
-    // public getInstance
+    private static RegistrationResource regResource = new RegistrationResource("registration");
+    private static final Logger LOGGER = Logger.getLogger(RegistrationResource.class.getName());
 
-    public RegistrationResource(String name) {
+    private RegistrationResource(String name) {
         super(name);
-        // setObservable(true);
+    }
+
+    public static RegistrationResource getInstance() {
+        return regResource;
     }
 
     public void handleGET(CoapExchange exchange) {
-        exchange.accept();
-        // exchange.reject();
-        InetAddress addr = exchange.getSourceAddress();
+        // exchange.accept();
+        exchange.reject();
 
-        String uri = new String("coap://[" + addr.toString().substring(1) + "]:5683/.well-known/core");
+        String addr = exchange.getSourceAddress().toString().substring(1);
+        String uri = new String("coap://[" + addr + "]:5683/.well-known/core");
+
         CoapClient req = new CoapClient(uri);
 
-        String res = req.get().getResponseText();
+        for (String response : req.get().getResponseText().split("\n")) {
+            Resource newRes = new Resource(addr, response);
 
-        AvailableResources.getInstance().add(new Resource(addr.toString().substring(1), res));
-
-        //Resource r = new Resource(addr.toString().substring(1), res);
-        //System.out.println(r.getAddr());
-        //System.out.println(r.hasMethod("post"));
+            if (!AvailableResources.isPresent(newRes)) {
+                AvailableResources.getInstance().add(newRes);
+                LOGGER.info("New resource at [" + newRes.getAddr() + "]" + newRes.getPath());
+            }
+        }
     }
 
     public void handlePOST(CoapExchange exchange) {
@@ -60,4 +67,5 @@ public class RegistrationResource extends CoapResource {
          */
         exchange.respond(ResponseCode.CREATED);
     }
+
 }
