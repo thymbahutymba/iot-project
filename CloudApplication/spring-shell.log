@@ -45,3 +45,28 @@
 1590429459751:print-resources
 1590429482227:set-alias -a cucina -r [fd00:0:0:0:202:2:2:2]/sensors/ambient/temperature
 1590429484685:print-resources
+1590506985580:get -r [fd00:0:0:0:202:2:2:2]/sensors/ambient/temperature
+1590506996490:exit
+1590507051712:get -r [fd00:0:0:0:202:2:2:2]/sensors/ambient/temperature
+1590507061633:get -r [fd00:0:0:0:203:3:3:3]/sensors/ambient/temperature
+1590507069999:get -r [fd00:0:0:0:204:4:4:4]/sensors/ambient/temperature
+1590507077916:get -r [fd00:0:0:0:202:2:2:2]/sensors/ambient/temperature
+1590507079828:get -r [fd00:0:0:0:203:3:3:3]/sensors/ambient/temperature
+1590507086290:exit
+1590507435644:print-resources
+1590507452967:exit
+1590507678728:print-resources
+1590507759070:exit
+1590508241153:print-resources
+1590508247765:help
+1590508252929:get -r [fd00:0:0:0:202:2:2:2]/sensors/ambient/temperature
+1590508261192:get -r [fd00:0:0:0:204:4:4:4]/sensors/ambient/temperature
+1590510778081:exit
+1590510838252:print-resources
+1590511032336:exit
+1590512365797:print-resources
+1590512376845:help
+1590512382001:get -r [fd00:0:0:0:202:2:2:2]
+1590512384139:exit
+1590512550366:print-resources
+1590512555877:get -r [fd00:0:0:0:202:2:2:2]/sensors/ambient/temperature

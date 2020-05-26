@@ -2,15 +2,10 @@ package iot_project;
 
 import iot_project.contiki.*;
 
-import java.net.InetAddress;
 import java.util.logging.Logger;
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapResource;
-import org.eclipse.californium.core.CoapResponse;
 import org.eclipse.californium.core.coap.CoAP.ResponseCode;
-import org.eclipse.californium.core.coap.MediaTypeRegistry;
-import org.eclipse.californium.core.coap.Request;
-import org.eclipse.californium.core.coap.Response;
 import org.eclipse.californium.core.server.resources.CoapExchange;
 
 public class RegistrationResource extends CoapResource {
@@ -33,9 +28,10 @@ public class RegistrationResource extends CoapResource {
         String uri = new String("coap://[" + addr + "]:5683/.well-known/core");
 
         CoapClient req = new CoapClient(uri);
+        String response = req.get().getResponseText().replace("</.well-known/core>;", "");
 
-        for (String response : req.get().getResponseText().split("\n")) {
-            Resource newRes = new Resource(addr, response);
+        for (String resource : response.split("\n")) {
+            Resource newRes = new Resource(addr, resource);
 
             if (!AvailableResources.isPresent(newRes)) {
                 AvailableResources.getInstance().add(newRes);

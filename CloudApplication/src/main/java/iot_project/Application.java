@@ -1,28 +1,17 @@
 package iot_project;
 
-import iot_project.contiki.*;
-
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 import org.eclipse.californium.core.CaliforniumLogger;
 import org.eclipse.californium.core.CoapServer;
-import org.eclipse.californium.core.network.CoapEndpoint;
-import org.eclipse.californium.core.network.config.NetworkConfig;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.shell.jline.PromptProvider;
-import org.springframework.shell.standard.ShellComponent;
-import org.springframework.shell.standard.ShellMethod;
-import java.net.InetSocketAddress;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 @SpringBootApplication
-@ComponentScan(basePackages = { "iot_project" })
+@ComponentScan(basePackages = {"iot_project"})
 public class Application extends CoapServer {
     public static void main(String[] args) {
         CaliforniumLogger.disableLogging();
@@ -37,8 +26,8 @@ public class Application extends CoapServer {
     }
 
     @Bean
-    public PromptProvider myPromptProvider() { 
+    public PromptProvider myPromptProvider() {
         return () -> new AttributedString("-> ",
-            AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
+                AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
     }
 }

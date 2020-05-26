@@ -1,12 +1,6 @@
 package iot_project.contiki;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.lang.Comparable;
 import org.eclipse.californium.core.CoapClient;
-
-import java.lang.*;
-import java.net.InetAddress;
 
 public class Resource extends CoapClient {
     private String addr;
@@ -21,8 +15,9 @@ public class Resource extends CoapClient {
         String[] content_split = content.split(";");
 
         this.addr = addr;
-        this.path = content_split[1].substring(content_split[1].indexOf("<") + 1, content_split[1].indexOf(">"));
-        this.methods = content_split[3];
+        String path_str = content_split[0];
+        this.path = path_str.substring(path_str.indexOf("<") + 1, path_str.indexOf(">"));
+        this.methods = content_split[2];
         this.isObservable = content.contains("obs");
 
         // Method from CoapClient
