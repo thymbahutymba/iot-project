@@ -17,15 +17,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AvailableResources extends ArrayList<Resource> implements ValueProvider {
-    /*
-     * Since AvailableResources is a singleton, instantiating array_resource as AvailableResouces is
-     * pointless due to the fact that each operation onto the array is prefixed by the getInstance
-     * which either returns AvailableResource which has to implement ArrayList or return the
-     * ArrayList itself should be the same.
-     * 
-     * ` public class AvailableResources extends ArrayList<Resource> implements ValueProvider
-     * private static AvailableResources array_resources = new AvailableResources(); `
-     */
     private static AvailableResources array_resources = new AvailableResources();
 
     private AvailableResources() {
@@ -51,13 +42,13 @@ public class AvailableResources extends ArrayList<Resource> implements ValueProv
 
             index.forEach(i -> {
                 data[i][0] = Integer.toString(i);
-                data[i][1] = array_resources.get(i).asFormattedString();
+                data[i][1] = array_resources.get(i).toFormattedString();
             });
 
             table = new ArrayTableModel(data);
         } else {
             Object[][] data = new Object[][] {array_resources.stream()
-                    .map(r -> r.asFormattedString()).collect(Collectors.toList()).toArray()};
+                    .map(r -> r.toFormattedString()).collect(Collectors.toList()).toArray()};
 
             table = new ArrayTableModel(data).transpose();
         }
@@ -77,7 +68,7 @@ public class AvailableResources extends ArrayList<Resource> implements ValueProv
     }
 
     public static Resource getResource(String res) {
-        return array_resources.stream().filter(r -> r.asFormattedString().equals(res)).findAny()
+        return array_resources.stream().filter(r -> r.toFormattedString().equals(res)).findAny()
                 .get();
     }
 
@@ -97,9 +88,9 @@ public class AvailableResources extends ArrayList<Resource> implements ValueProv
 
         List<CompletionProposal> result = new ArrayList<CompletionProposal>();
         String userInput = completionContext.currentWordUpToCursor();
-
-        array_resources.stream().filter(t -> t.asFormattedString().contains(userInput))
-                .forEach(t -> result.add(new CompletionProposal(t.asFormattedString())));
+        
+        array_resources.stream().filter(t -> t.toFormattedString().contains(userInput))
+                .forEach(t -> result.add(new CompletionProposal(t.toFormattedString())));
 
         return result;
     }

@@ -48,7 +48,7 @@ public class Resource extends CoapClient {
         return this.isObservable;
     }
 
-    public String asFormattedString() {
+    public String toFormattedString() {
         return "[" + ((this.alias.isEmpty()) ? this.addr : this.alias) + "]" + this.path;
     }
 }
