@@ -69,4 +69,14 @@ public class Resource extends CoapClient {
     public String toFormattedString() {
         return "[" + ((this.alias.isEmpty()) ? this.addr : this.alias) + "]" + this.path;
     }
+
+    public String getFormattedAliasAddr() {
+        String result = new String();
+        if (!this.alias.isEmpty())
+            result = "(" + this.alias + ") ";
+
+        result += "[" + this.addr + "]";
+
+        return result;
+    }
 }

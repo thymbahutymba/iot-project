@@ -70,3 +70,27 @@
 1590512384139:exit
 1590512550366:print-resources
 1590512555877:get -r [fd00:0:0:0:202:2:2:2]/sensors/ambient/temperature
+1590599036081:print-resources
+1590599062475:set-alias -r [fd00:0:0:0:202:2:2:2]/sensors/ambient/temperature cucina
+1590599069772:set-alias -r [fd00:0:0:0:203:3:3:3]/sensors/ambient/temperature bagno
+1590599071911:print-resources
+1590599082751:exit
+1590599822388:print-resources
+1590599831469:exit
+1590612070358:print-resources
+1590612197647:exit
+1590612400851:print-resources
+1590612565218:exit
+1590612594610:print-resources
+1590612701426:exit
+1590612896560:print-resources
+1590612899884:exit
+1590613645589:print-resources
+1590613663362:exit
+1590613713193:print-resources
+1590614186238:exit
+1590614332767:print-resources
+1590614342391:set-alias -r [fd00:0:0:0:202:2:2:2] -a cucina
+1590614344203:print-resources
+1590614361581:set-alias -r (cucina)\\ [fd00:0:0:0:202:2:2:2] -a prova
+1590614363070:print-resources

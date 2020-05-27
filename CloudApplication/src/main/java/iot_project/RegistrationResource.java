@@ -5,7 +5,6 @@ import iot_project.contiki.*;
 import java.util.logging.Logger;
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapResource;
-import org.eclipse.californium.core.coap.CoAP.ResponseCode;
 import org.eclipse.californium.core.server.resources.CoapExchange;
 
 public class RegistrationResource extends CoapResource {
@@ -39,29 +38,4 @@ public class RegistrationResource extends CoapResource {
             }
         }
     }
-
-    public void handlePOST(CoapExchange exchange) {
-
-        byte[] request = exchange.getRequestPayload();
-        String s = new String(request);
-        System.out.println(s);
-        System.out.println("new");
-
-        // exchange.accept();
-
-        // Integer value = Integer.parseInt(s);
-        // Double resp = Math.sqrt(value);
-
-        /*
-         * s = Double.toString(1000);
-         * 
-         * Response response = new Response(ResponseCode.CONTENT);
-         * 
-         * response.setPayload(s);
-         * 
-         * exchange.respond(response);
-         */
-        exchange.respond(ResponseCode.CREATED);
-    }
-
 }

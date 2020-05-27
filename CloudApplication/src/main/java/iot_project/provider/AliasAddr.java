@@ -1,27 +1,16 @@
 package iot_project.provider;
 
-import iot_project.contiki.AvailableResources;
-import iot_project.contiki.Method;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.core.MethodParameter;
 import org.springframework.shell.CompletionContext;
 import org.springframework.shell.CompletionProposal;
+import org.springframework.core.MethodParameter;
 import org.springframework.shell.standard.ValueProviderSupport;
+import org.springframework.stereotype.Component;
+import iot_project.contiki.AvailableResources;
 
-public class GeneralMethod extends ValueProviderSupport {
-    //private String method;
-//
-    //public GeneralMethod(String method) {
-    //    this.method = method.toUpperCase();
-    //}
-
-    private Method method;
-
-    public GeneralMethod(Method m) {
-        this.method = m;
-    }
-
+@Component
+public class AliasAddr extends ValueProviderSupport {
     @Override
     public List<CompletionProposal> complete(MethodParameter methodParameter,
             CompletionContext completionContext, String[] strings) {
@@ -30,8 +19,8 @@ public class GeneralMethod extends ValueProviderSupport {
         String userInput = completionContext.currentWordUpToCursor();
 
         AvailableResources.getInstance().stream()
-                .filter(t -> t.hasMethod(this.method) && t.toFormattedString().contains(userInput))
-                .forEach(t -> result.add(new CompletionProposal(t.toFormattedString())));
+                .filter(t -> t.getFormattedAliasAddr().contains(userInput))
+                .forEach(t -> result.add(new CompletionProposal(t.getFormattedAliasAddr())));
 
         return result;
     }

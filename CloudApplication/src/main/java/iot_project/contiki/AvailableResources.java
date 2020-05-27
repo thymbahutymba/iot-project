@@ -47,10 +47,11 @@ public class AvailableResources extends ArrayList<Resource> implements ValueProv
 
             table = new ArrayTableModel(data);
         } else {
-            Object[][] data = new Object[][] {array_resources.stream()
-                    .map(r -> r.toFormattedString()).collect(Collectors.toList()).toArray()};
+            Object[][] data = array_resources.stream()
+                    .map(r -> new Object[] {r.getFormattedAliasAddr(), r.getPath()})
+                    .toArray(Object[][]::new);
 
-            table = new ArrayTableModel(data).transpose();
+            table = new ArrayTableModel(data);
         }
 
         TableBuilder builder = new TableBuilder(table);
@@ -88,7 +89,7 @@ public class AvailableResources extends ArrayList<Resource> implements ValueProv
 
         List<CompletionProposal> result = new ArrayList<CompletionProposal>();
         String userInput = completionContext.currentWordUpToCursor();
-        
+
         array_resources.stream().filter(t -> t.toFormattedString().contains(userInput))
                 .forEach(t -> result.add(new CompletionProposal(t.toFormattedString())));
 
