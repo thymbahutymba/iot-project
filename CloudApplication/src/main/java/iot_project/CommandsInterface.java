@@ -33,7 +33,8 @@ public class CommandsInterface {
 			valueProvider = GetMethod.class) String resource) {
 		
 		Resource r = AvailableResources.getResource(resource);
-		if(!r.hasMethod("GET"))
+		//if(!r.hasMethod("GET"))
+		if (!r.hasMethod(Method.GET))
 			System.out.println("The resource does not provide GET method.");
 		else 
 			System.out.println(r.get().getResponseText());
@@ -44,7 +45,8 @@ public class CommandsInterface {
 			valueProvider = PutMethod.class) String resource) {
 		
 		Resource r = AvailableResources.getResource(resource);
-		if(!r.hasMethod("PUT"))
+		//if(!r.hasMethod("PUT"))
+		if (!r.hasMethod(Method.PUT))
 			System.out.println("The resource does not provide GET method.");
 		else 
 			System.out.println(r.get().getResponseText());

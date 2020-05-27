@@ -1,11 +1,13 @@
 package iot_project.contiki;
 
+import java.util.Arrays;
 import org.eclipse.californium.core.CoapClient;
 
 public class Resource extends CoapClient {
     private String addr;
     private String path;
-    private String methods;
+    // private String methods;
+    private Method[] methods;
     private String alias = new String();
     private boolean isObservable = false;
 
@@ -17,7 +19,14 @@ public class Resource extends CoapClient {
         this.addr = addr;
         String path_str = content_split[0];
         this.path = path_str.substring(path_str.indexOf("<") + 1, path_str.indexOf(">"));
-        this.methods = content_split[2];
+
+        String methods_str = content_split[2];
+        this.methods = Arrays
+                .stream(methods_str.substring(methods_str.indexOf("\"") + 1)
+                        .substring(0, methods_str.indexOf("\"")).split("/"))
+                .map(rs -> Method.valueOf(rs.toUpperCase()))
+                .toArray(size -> new Method[size]);
+
         this.isObservable = content.contains("obs");
 
         // Method from CoapClient
@@ -40,8 +49,17 @@ public class Resource extends CoapClient {
         this.alias = alias;
     }
 
-    public boolean hasMethod(String method) {
-        return this.methods.contains(method.toUpperCase());
+    // public boolean hasMethod(String method) {
+    // return this.methods.contains(method.toUpperCase());
+    // }
+
+    public boolean hasMethod(Method method) {
+        for (Method m : this.methods) {
+            if (m.equals(method))
+                return true;
+        }
+
+        return false;
     }
 
     public boolean isObservable() {
