@@ -18,7 +18,7 @@
 #define SERVER_REGISTRATION ("/registration")
 
 extern coap_resource_t res_temperature;
-// extern coap_resource_t res_humidity;
+extern coap_resource_t res_humidity;
 
 static coap_message_type_t result = COAP_TYPE_RST;
 //static char payload[2048];
@@ -108,14 +108,11 @@ PROCESS_THREAD(ambient_sensor, ev, data)
 {
     static coap_endpoint_t server_ep;
     static coap_message_t request[1];
-    //static coap_resource_t *resources[] = {
-    //    &res_temperature,
-    //};
 
     PROCESS_BEGIN();
         
     coap_activate_resource(&res_temperature, "sensors/ambient/temperature");
-    // coap_activate_resource(&res_temperature, "sensors/ambient/humidity");
+    coap_activate_resource(&res_humidity, "sensors/ambient/humidity");
 
     //if ((payload = ser_resources(resources)) == NULL) {
     //    LOG_ERR("malloc error");
@@ -131,8 +128,6 @@ PROCESS_THREAD(ambient_sensor, ev, data)
 
         COAP_BLOCKING_REQUEST(&server_ep, request, response_handler);
     } while (result == COAP_TYPE_RST);
-
-    LOG_DBG("while\n");
 
     //if (payload)
     //    free((void *)payload);

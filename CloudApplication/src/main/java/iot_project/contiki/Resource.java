@@ -22,10 +22,9 @@ public class Resource extends CoapClient {
 
         String methods_str = content_split[2];
         this.methods = Arrays
-                .stream(methods_str.substring(methods_str.indexOf("\"") + 1)
-                        .substring(0, methods_str.indexOf("\"")).split("/"))
-                .map(rs -> Method.valueOf(rs.toUpperCase()))
-                .toArray(size -> new Method[size]);
+                .stream(methods_str.substring(0, methods_str.lastIndexOf("\""))
+                        .substring(methods_str.indexOf("\"") + 1).split("/", 0))
+                .map(rs -> Method.valueOf(rs.toUpperCase())).toArray(size -> new Method[size]);
 
         this.isObservable = content.contains("obs");
 
@@ -66,10 +65,6 @@ public class Resource extends CoapClient {
         return this.isObservable;
     }
 
-    public String toFormattedString() {
-        return "[" + ((this.alias.isEmpty()) ? this.addr : this.alias) + "]" + this.path;
-    }
-
     public String getFormattedAliasAddr() {
         String result = new String();
         if (!this.alias.isEmpty())
@@ -78,5 +73,9 @@ public class Resource extends CoapClient {
         result += "[" + this.addr + "]";
 
         return result;
+    }
+
+    public String toFormattedString() {
+        return this.getFormattedAliasAddr() + this.path;
     }
 }
