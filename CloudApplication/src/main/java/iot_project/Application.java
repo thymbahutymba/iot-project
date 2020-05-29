@@ -2,6 +2,8 @@ package iot_project;
 
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
+import org.json.simple.JSONObject;
+import java.util.HashMap;
 import org.eclipse.californium.core.CaliforniumLogger;
 import org.eclipse.californium.core.CoapServer;
 import org.springframework.boot.SpringApplication;

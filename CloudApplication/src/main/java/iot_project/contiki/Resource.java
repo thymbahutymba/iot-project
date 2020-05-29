@@ -1,6 +1,7 @@
 package iot_project.contiki;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import org.eclipse.californium.core.CoapClient;
 
 public class Resource extends CoapClient {
@@ -10,6 +11,7 @@ public class Resource extends CoapClient {
     private Method[] methods;
     private String alias = new String();
     private boolean isObservable = false;
+    private HashMap<String, String> payload_format = new HashMap<>();
 
     public Resource(String addr, String content) {
         super();
@@ -25,6 +27,31 @@ public class Resource extends CoapClient {
                 .stream(methods_str.substring(0, methods_str.lastIndexOf("\""))
                         .substring(methods_str.indexOf("\"") + 1).split("/", 0))
                 .map(rs -> Method.valueOf(rs.toUpperCase())).toArray(size -> new Method[size]);
+
+        /* Extract payload format */
+        String payload_str = content_split[3].replace("payload=", "");
+
+        if (!payload_str.isEmpty())
+            for (String p : payload_str.split(",")) {
+                String key = p.substring(0, p.indexOf(":"));
+                String values = p.substring(p.indexOf(":") + 1, p.length());
+
+                this.payload_format.put(key, values);
+                /*
+                System.out.println(key + " " + values);
+
+                if (values.contains("|"))
+                    for (String a : values.split("\\|")) {
+                        System.out.println(a);
+                    }
+                else if (values.contains("&"))
+                    for (String a : values.split("\\|")) {
+                        System.out.println(a);
+                    }
+                else
+                    System.out.println(values);
+                */
+            }
 
         this.isObservable = content.contains("obs");
 
@@ -46,6 +73,10 @@ public class Resource extends CoapClient {
 
     public void setAlias(String alias) {
         this.alias = alias;
+    }
+
+    public HashMap<String, String> getPayloadFormat() {
+        return this.payload_format;
     }
 
     // public boolean hasMethod(String method) {

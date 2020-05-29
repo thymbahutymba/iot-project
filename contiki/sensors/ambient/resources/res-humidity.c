@@ -1,43 +1,34 @@
+#include "../../value-updater.h"
+#include "humidifier.h"
 
-#include "contiki.h"
-
-#include "../../custom_resource.h"
 #include "coap-engine.h"
+#include "contiki.h"
 #include "os/lib/random.h"
+#include "sys/log.h"
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-/* Log configuration */
-#include "sys/log.h"
-
-#define LOG_MODULE "Sensor"
-#define LOG_LEVEL LOG_LEVEL_INFO
+#define LOG_MODULE "Humidity"
+#define LOG_LEVEL LOG_LEVEL_RESOURCE
+#define MAX_AGE (60)
+#define HUMIDITY_MAX (100)
+#define HUMIDITY_MIN (20)
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,
                             uint8_t *buffer, uint16_t preferred_size,
                             int32_t *offset);
 static void res_periodic_handler(void);
 
-#define MAX_AGE 60
-#define INTERVAL_MIN 5
-#define INTERVAL_MAX (MAX_AGE - 1)
-#define CHANGE 1
-#define OFFSET_TEMP (2)
-#define HUMIDITY_MAX (100)
-#define HUMIDITY_MIN (20)
-
-static int32_t interval_counter = INTERVAL_MIN;
-
-static resource_t humidity = {
-    .value = -1,
-    .init = init_resource,
-    .update = update_resource,
-};
+static float humidity = (float)INT16_MIN;
+extern humidifier_t humidifier;
 
 PERIODIC_RESOURCE(res_humidity,
-                  "title=\"Humidity\";methods=\"GET\";rt=\"float\";obs\n",
+                  "title=\"Humidity\";"
+                  "methods=\"GET\";"
+                  "payload=humidity:float;"
+                  "rt=\"float\";obs\n",
                   res_get_handler, NULL, NULL, NULL, 1000,
                   res_periodic_handler);
 
@@ -47,24 +38,16 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
 {
     unsigned int accept = -1;
     coap_get_header_accept(request, &accept);
-    printf("a: %i", accept);
 
-    if (accept == -1 || accept == TEXT_PLAIN) {
-        coap_set_header_content_format(response, TEXT_PLAIN);
-        snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "%.1f",
-                 humidity.value);
-
-        coap_set_payload(response, (uint8_t *)buffer, strlen((char *)buffer));
-    } else if (accept == APPLICATION_JSON) {
+    if (accept == APPLICATION_JSON) {
         coap_set_header_content_format(response, APPLICATION_JSON);
-        snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{'humidity':%.1f}",
-                 humidity.value);
+        snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{\"humidity\":%.1f}",
+                 humidity);
 
         coap_set_payload(response, buffer, strlen((char *)buffer));
     } else {
         coap_set_status_code(response, NOT_ACCEPTABLE_4_06);
-        const char *msg =
-            "Supporting content-types text/plain and application/json";
+        const char *msg = "Supporting content-types application/json";
         coap_set_payload(response, msg, strlen(msg));
     }
 
@@ -81,12 +64,13 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
  */
 static void res_periodic_handler()
 {
-    if (humidity.value == -1)
-        humidity.init((void *)&humidity, HUMIDITY_MIN, HUMIDITY_MAX);
+    if (humidity == (float)INT16_MIN)
+        INIT_VALUE_RANGE(humidity, HUMIDITY_MIN, HUMIDITY_MAX);
 
-    humidity.update((void *)&humidity);
+    LOG_DBG("Humidifier mode %i with value %f\n", humidifier.mode,
+            humidifier.humidity);
 
-    ++interval_counter;
+    UPDATE_VALUE(humidity);
 
     /* Notify the registered observers which will trigger the
      * res_get_handler to create the response. */
