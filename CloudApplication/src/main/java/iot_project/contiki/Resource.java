@@ -2,7 +2,9 @@ package iot_project.contiki;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.californium.core.CoapClient;
+import org.eclipse.californium.core.CoapObserveRelation;
 
 public class Resource extends CoapClient {
     private String addr;
@@ -11,6 +13,8 @@ public class Resource extends CoapClient {
     private Method[] methods;
     private String alias = new String();
     private boolean isObservable = false;
+    private CoapObserveRelation obsRelation;
+    private CoapObserverHandler obsHandler;
     private HashMap<String, String> payload_format = new HashMap<>();
 
     public Resource(String addr, String content) {
@@ -37,26 +41,24 @@ public class Resource extends CoapClient {
                 String values = p.substring(p.indexOf(":") + 1, p.length());
 
                 this.payload_format.put(key, values);
-                /*
-                System.out.println(key + " " + values);
-
-                if (values.contains("|"))
-                    for (String a : values.split("\\|")) {
-                        System.out.println(a);
-                    }
-                else if (values.contains("&"))
-                    for (String a : values.split("\\|")) {
-                        System.out.println(a);
-                    }
-                else
-                    System.out.println(values);
-                */
             }
-
-        this.isObservable = content.contains("obs");
 
         // Method from CoapClient
         this.setURI("coap://[" + this.addr + "]" + this.path);
+
+        // Init observing relation
+        this.isObservable = content.contains("obs");
+
+        if (!this.isObservable)
+            return;
+
+        for (Map.Entry<String, String> e : this.payload_format.entrySet()) {
+            if (e.getValue().equals("int") || e.getValue().equals("float")) {
+                this.obsHandler = new CoapObserverHandler(this.toFormattedString(), e.getKey());
+                this.obsRelation = this.observe(this.obsHandler);
+                break;
+            }
+        }
     }
 
     public String getAddr() {
@@ -79,9 +81,13 @@ public class Resource extends CoapClient {
         return this.payload_format;
     }
 
-    // public boolean hasMethod(String method) {
-    // return this.methods.contains(method.toUpperCase());
-    // }
+    public void printHistory() {
+        if (this.isObservable)
+            this.obsHandler.printHistory();
+        else 
+            // This code should not be reachable thanks to tab completition
+            System.err.println("The resource is not osservable");
+    }
 
     public boolean hasMethod(Method method) {
         for (Method m : this.methods) {

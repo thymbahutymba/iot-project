@@ -3,13 +3,10 @@
 #include "contiki-net.h"
 #include "contiki.h"
 #include "lib/heapmem.h"
-
+#include "sys/log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-/* Log configuration */
-#include "sys/log.h"
 
 #define LOG_MODULE "Ambient sensor"
 #define LOG_LEVEL LOG_LEVEL_DBG

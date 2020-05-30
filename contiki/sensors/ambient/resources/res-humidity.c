@@ -1,4 +1,5 @@
 #include "../../value-updater.h"
+//#include "../project-conf.h"
 #include "humidifier.h"
 
 #include "coap-engine.h"
@@ -11,7 +12,7 @@
 #include <string.h>
 
 #define LOG_MODULE "Humidity"
-#define LOG_LEVEL LOG_LEVEL_RESOURCE
+#define LOG_LEVEL LOG_LEVEL_DBG
 #define MAX_AGE (60)
 #define HUMIDITY_MAX (100)
 #define HUMIDITY_MIN (20)
@@ -23,6 +24,24 @@ static void res_periodic_handler(void);
 
 static float humidity = (float)INT16_MIN;
 extern humidifier_t humidifier;
+
+#ifdef update_value
+#undef update_value
+#endif
+
+#define update_value(value)                                                    \
+    {                                                                          \
+        if (!humidifier.mode) {                                                \
+            if (((float)rand() / RAND_MAX) > PROBABILITY_UPDATE)               \
+                value += ((float)rand() / RAND_MAX) * (2 * OFFSET_VALUE) -     \
+                         OFFSET_VALUE;                                         \
+        } else {                                                               \
+            if (((float)rand() / RAND_MAX) < PROBABILITY_UPDATE) {             \
+                float inc = ((float)rand() / RAND_MAX) * OFFSET_VALUE;         \
+                value += (humidifier.humidity > humidity) ? inc : -inc;        \
+            }                                                                  \
+        }                                                                      \
+    }
 
 PERIODIC_RESOURCE(res_humidity,
                   "title=\"Humidity\";"
@@ -36,7 +55,7 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
                             uint8_t *buffer, uint16_t preferred_size,
                             int32_t *offset)
 {
-    unsigned int accept = -1;
+    unsigned int accept = APPLICATION_JSON;
     coap_get_header_accept(request, &accept);
 
     if (accept == APPLICATION_JSON) {
@@ -57,20 +76,12 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
      * by the coap_framework. */
 }
 
-/*
- * Additionally, a handler function named [resource name]_handler must be
- * implemented for each PERIODIC_RESOURCE. It will be called by the coap_manager
- * process with the defined period.
- */
 static void res_periodic_handler()
 {
     if (humidity == (float)INT16_MIN)
-        INIT_VALUE_RANGE(humidity, HUMIDITY_MIN, HUMIDITY_MAX);
+        init_value_range(humidity, HUMIDITY_MIN, HUMIDITY_MAX);
 
-    LOG_DBG("Humidifier mode %i with value %f\n", humidifier.mode,
-            humidifier.humidity);
-
-    UPDATE_VALUE(humidity);
+    update_value(humidity);
 
     /* Notify the registered observers which will trigger the
      * res_get_handler to create the response. */

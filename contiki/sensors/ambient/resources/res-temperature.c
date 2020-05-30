@@ -10,7 +10,7 @@
 #include <string.h>
 
 #define LOG_MODULE "Temperature"
-#define LOG_LEVEL LOG_LEVEL_RESOURCE
+#define LOG_LEVEL LOG_LEVEL_DBG
 #define MAX_AGE 60
 #define OFFSET_TEMP (2)
 #define TEMP_MAX (40)
@@ -35,16 +35,10 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
                             uint8_t *buffer, uint16_t preferred_size,
                             int32_t *offset)
 {
-    unsigned int accept = -1;
+    unsigned int accept = APPLICATION_JSON;
     coap_get_header_accept(request, &accept);
-    printf("a: %i", accept);
 
-    if (accept == -1 || accept == TEXT_PLAIN) {
-        coap_set_header_content_format(response, TEXT_PLAIN);
-        snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "%.1f", temperature);
-
-        coap_set_payload(response, (uint8_t *)buffer, strlen((char *)buffer));
-    } else if (accept == APPLICATION_JSON) {
+    if (accept == APPLICATION_JSON) {
         coap_set_header_content_format(response, APPLICATION_JSON);
         snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{\"temperature\":%.1f}",
                  temperature);
@@ -63,17 +57,12 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
      * by the coap_framework. */
 }
 
-/*
- * Additionally, a handler function named [resource name]_handler must be
- * implemented for each PERIODIC_RESOURCE. It will be called by the coap_manager
- * process with the defined period.
- */
 static void res_periodic_handler()
 {
     if (temperature == (float)INT16_MIN)
-        INIT_VALUE_RANGE(temperature, TEMP_MIN, TEMP_MAX);
+        init_value_range(temperature, TEMP_MIN, TEMP_MAX);
 
-    UPDATE_VALUE(temperature);
+    update_value(temperature);
 
     /* Notify the registered observers which will trigger the
      * res_get_handler to create the response. */

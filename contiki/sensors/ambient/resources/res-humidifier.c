@@ -12,7 +12,7 @@
 #include <string.h>
 
 #define LOG_MODULE "Humidifier"
-#define LOG_LEVEL LOG_LEVEL_RESOURCE
+#define LOG_LEVEL LOG_LEVEL_DBG
 #define MAX_AGE 60
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,

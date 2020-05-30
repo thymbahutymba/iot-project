@@ -118,4 +118,11 @@ public class CommandsInterface {
 		JSONObject json_payload = createJsonPayload(r);
 		r.put(json_payload.toJSONString(), MediaTypeRegistry.APPLICATION_JSON);
 	}
+
+	@ShellMethod("Print history of given observable resource")
+	public void history(@ShellOption(value = {"-r", "--resource"},
+			valueProvider = ObservableResources.class) String resource) {
+
+		AvailableResources.getResource(resource).printHistory();
+	}
 }

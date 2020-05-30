@@ -20,8 +20,7 @@ public class RegistrationResource extends CoapResource {
     }
 
     public void handleGET(CoapExchange exchange) {
-        // exchange.accept();
-        exchange.reject();
+        exchange.accept();
     
         String addr = exchange.getSourceAddress().toString().substring(1);
         String uri = new String("coap://[" + addr + "]:5683/.well-known/core");
