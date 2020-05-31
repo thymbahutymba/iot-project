@@ -9,7 +9,6 @@ import org.eclipse.californium.core.CoapObserveRelation;
 public class Resource extends CoapClient {
     private String addr;
     private String path;
-    // private String methods;
     private Method[] methods;
     private String alias = new String();
     private boolean isObservable = false;
@@ -53,7 +52,7 @@ public class Resource extends CoapClient {
             return;
 
         for (Map.Entry<String, String> e : this.payload_format.entrySet()) {
-            if (e.getValue().equals("int") || e.getValue().equals("float")) {
+            if (/*e.getValue().equals("int") ||*/ e.getValue().equals("float")) {
                 this.obsHandler = new CoapObserverHandler(this.toFormattedString(), e.getKey());
                 this.obsRelation = this.observe(this.obsHandler);
                 break;

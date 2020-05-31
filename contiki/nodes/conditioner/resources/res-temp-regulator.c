@@ -1,6 +1,6 @@
 #include "../../../coap-utility.h"
 #include "../../value-updater.h"
-#include "humidifier.h"
+#include "temp-regulator.h"
 
 #include "coap-engine.h"
 #include "contiki.h"
@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define LOG_MODULE "Humidifier"
+#define LOG_MODULE "Temperature regulator"
 #define LOG_LEVEL LOG_LEVEL_DBG
 #define MAX_AGE 60
 
@@ -23,16 +23,16 @@ static void res_post_put_handler(coap_message_t *request,
                                  coap_message_t *response, uint8_t *buffer,
                                  uint16_t preferred_size, int32_t *offset);
 
-humidifier_t humidifier = {
+regulator_t temp_regulator = {
     .mode = false,
-    .humidity = 0.0,
+    .temperature = 0.0,
 };
 
-RESOURCE(res_humidifier,
-         "title=\"Humidifier\";"
+RESOURCE(res_temp_regulator,
+         "title=\"Temperature regulator\";"
          "methods=\"GET/PUT/POST\";"
-         "payload=mode:on|off,humidity:float;"
-         "rt=\"String\"",
+         "payload=mode:on|off,temperature:float;"
+         "rt=\"String\"\n",
          res_get_handler, res_post_put_handler, res_post_put_handler, NULL);
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,
@@ -45,10 +45,10 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
     if (accept == APPLICATION_JSON) {
         coap_set_header_content_format(response, APPLICATION_JSON);
 
-        if (humidifier.mode)
+        if (temp_regulator.mode)
             snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE,
-                     "{ \"mode\" : \"%s\", \"humidity\": %f }", "on",
-                     humidifier.humidity);
+                     "{ \"mode\" : \"%s\", \"temperature\": %f }", "on",
+                     temp_regulator.temperature);
         else
             snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE,
                      "{ \"mode\" : \"%s\" }", "off");
@@ -56,7 +56,7 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
         coap_set_payload(response, buffer, strlen((char *)buffer));
     } else {
         coap_set_status_code(response, NOT_ACCEPTABLE_4_06);
-        const char *msg = "Supporting content-types application/json";
+        const char *msg = "Supporting content-type application/json";
         coap_set_payload(response, msg, strlen(msg));
     }
 
@@ -72,7 +72,7 @@ static void res_post_put_handler(coap_message_t *request,
 {
     int success = 0;
     const char *mode;
-    const char *humidity;
+    const char *temperature;
 
     LOG_DBG("%s\n", request->payload);
 
@@ -85,25 +85,25 @@ static void res_post_put_handler(coap_message_t *request,
     if (len_mode) {
         if (!strncmp("\"on\"", mode, len_mode)) {
             coap_get_json_variable((const char *)request->payload,
-                                   request->payload_len, "\"humidity\"",
-                                   &humidity);
+                                   request->payload_len, "\"temperature\"",
+                                   &temperature);
 
-            humidifier.mode = true;
-            humidifier.humidity = atof(humidity);
+            temp_regulator.mode = true;
+            temp_regulator.temperature = atof(temperature);
         } else
-            humidifier.mode = false;
+            temp_regulator.mode = false;
 
         success = 1;
     }
 
     if (!success) {
-        LOG_DBG("Can not change the humidifier mode\n");
+        LOG_DBG("Can not change the conditioner mode\n");
         coap_set_status_code(response, BAD_REQUEST_4_00);
     } else {
-        if (humidifier.mode)
-            LOG_DBG("Humidifier mode set to on with humidity: %f\n",
-                    humidifier.humidity);
+        if (temp_regulator.mode)
+            LOG_DBG("Conditioner mode set to on with temperature: %f\n",
+                    temp_regulator.temperature);
         else
-            LOG_DBG("Humidifier mode set to off\n");
+            LOG_DBG("Conditioner mode set to off\n");
     }
 }

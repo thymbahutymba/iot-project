@@ -1,5 +1,4 @@
 #include "../../value-updater.h"
-//#include "../project-conf.h"
 #include "humidifier.h"
 
 #include "coap-engine.h"
@@ -48,7 +47,7 @@ PERIODIC_RESOURCE(res_humidity,
                   "methods=\"GET\";"
                   "payload=humidity:float;"
                   "rt=\"float\";obs\n",
-                  res_get_handler, NULL, NULL, NULL, 1000,
+                  res_get_handler, NULL, NULL, NULL, 5000,
                   res_periodic_handler);
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,

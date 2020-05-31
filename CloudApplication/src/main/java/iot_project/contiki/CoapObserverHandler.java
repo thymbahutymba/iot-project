@@ -1,6 +1,7 @@
 package iot_project.contiki;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.stream.Collectors;
 import org.eclipse.californium.core.CoapHandler;
 import org.eclipse.californium.core.CoapResponse;
@@ -27,7 +28,12 @@ class CoapObserverHandler implements CoapHandler {
     }
 
     public void printHistory() {
-        System.out.println(this.history.stream().collect(Collectors.joining(" ")));
+        // System.out.println(this.history.stream().collect(Collectors.joining(" ")));
+        System.out.println(this.history.stream().collect(
+                Collectors.collectingAndThen(Collectors.toCollection(ArrayList::new), hst -> {
+                    Collections.reverse(hst);
+                    return hst.stream();
+                })).collect(Collectors.joining(" ")));
     }
 
     @Override

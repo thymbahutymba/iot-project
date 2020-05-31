@@ -1,4 +1,5 @@
 #include "../../value-updater.h"
+#include "temp-regulator.h"
 
 #include "coap-engine.h"
 #include "contiki.h"
@@ -22,13 +23,32 @@ static void res_get_handler(coap_message_t *request, coap_message_t *response,
 static void res_periodic_handler(void);
 
 static float temperature = (float)INT16_MIN;
+extern regulator_t temp_regulator;
+
+#ifdef update_value
+#undef update_value
+#endif
+
+#define update_value(value)                                                    \
+    {                                                                          \
+        if (!temp_regulator.mode) {                                               \
+            if (((float)rand() / RAND_MAX) > PROBABILITY_UPDATE)               \
+                value += ((float)rand() / RAND_MAX) * (2 * OFFSET_VALUE) -     \
+                         OFFSET_VALUE;                                         \
+        } else {                                                               \
+            if (((float)rand() / RAND_MAX) < PROBABILITY_UPDATE) {             \
+                float inc = ((float)rand() / RAND_MAX) * OFFSET_VALUE;         \
+                value += (temp_regulator.temperature > temperature) ? inc : -inc; \
+            }                                                                  \
+        }                                                                      \
+    }
 
 PERIODIC_RESOURCE(res_temperature,
                   "title=\"Temperature\";"
-                  "methods=\"GET/POST\";"
+                  "methods=\"GET\";"
                   "payload=temperature:float;"
                   "rt=\"float\";obs\n",
-                  res_get_handler, NULL, NULL, NULL, 1000,
+                  res_get_handler, NULL, NULL, NULL, 5000,
                   res_periodic_handler);
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,
