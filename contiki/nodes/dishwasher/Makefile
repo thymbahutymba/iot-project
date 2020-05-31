@@ -1,4 +1,4 @@
-CONTIKI_PROJECT = conditioner
+CONTIKI_PROJECT = dishwasher
 
 all: $(CONTIKI_PROJECT)
 

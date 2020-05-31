@@ -1,4 +1,4 @@
-CONTIKI_PROJECT = conditioner
+CONTIKI_PROJECT = washing-machine
 
 all: $(CONTIKI_PROJECT)
 

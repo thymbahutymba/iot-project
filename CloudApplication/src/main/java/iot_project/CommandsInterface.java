@@ -69,7 +69,7 @@ public class CommandsInterface {
 
 		r.getPayloadFormat().forEach((k, v) -> {
 			if (json_payload.containsKey("mode") && json_payload.get("mode").equals("off")
-					&& (v.equals("float") || v.equals("int")))
+					/*&& (v.equals("float") || v.equals("int"))*/)
 				return;
 
 			String content = lineReader.readLine(k + " [ " + v + " ]: ");
@@ -82,8 +82,8 @@ public class CommandsInterface {
 
 			if (v.equals("float"))
 				json_payload.put(k, Float.parseFloat(content));
-			else if (v.equals("int"))
-				json_payload.put(k, Integer.parseInt(content));
+			/*else if (v.equals("int"))
+				json_payload.put(k, Integer.parseInt(content));*/
 			else
 				json_payload.put(k, content);
 		});
