@@ -12,6 +12,8 @@
 #define LOG_MODULE "ResWashingMachine"
 #define LOG_LEVEL LOG_LEVEL_DBG
 #define MAX_AGE 60
+#define SHORT_PROGRAM (30)
+#define LONG_PROGRAM (60)
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,
                             uint8_t *buffer, uint16_t preferred_size,
@@ -34,6 +36,26 @@ RESOURCE(res_washing_machine,
          "payload=mode:on|off,program:short|long;"
          "rt=\"String\"\n",
          res_get_handler, res_post_put_handler, res_post_put_handler, NULL);
+
+PROCESS(washing_machine_process, "Washing machine program mode process");
+
+PROCESS_THREAD(washing_machine_process, ev, data)
+{
+    static struct etimer timer;
+    process_start(&washing_machine_process, NULL);
+
+    PROCESS_BEGIN();
+
+    if (!strcmp(washing_machine.program, "short"))
+        etimer_set(&timer, CLOCK_SECOND * SHORT_PROGRAM);
+    else
+        etimer_set(&timer, CLOCK_SECOND * LONG_PROGRAM);
+
+    PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&timer));
+    washing_machine.mode = false;
+
+    PROCESS_END();
+}
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,
                             uint8_t *buffer, uint16_t preferred_size,
@@ -82,24 +104,37 @@ static void res_post_put_handler(coap_message_t *request,
 
     if (len_mode) {
         if (!strncmp("\"on\"", mode, len_mode)) {
-            size_t len_program = coap_get_json_variable(
-                (const char *)request->payload, request->payload_len,
-                "\"program\"", &program);
+            if (washing_machine.mode &&
+                process_is_running(&washing_machine_process)) {
+                success = 2;
+            } else {
 
-            washing_machine.mode = true;
-            if (!strncmp("\"long\"", program, len_program))
-                strcpy(washing_machine.program, "long");
-            else
-                strcpy(washing_machine.program, "short");
-        } else
+                size_t len_program = coap_get_json_variable(
+                    (const char *)request->payload, request->payload_len,
+                    "\"program\"", &program);
+
+                washing_machine.mode = true;
+                if (!strncmp("\"long\"", program, len_program))
+                    strcpy(washing_machine.program, "long");
+                else
+                    strcpy(washing_machine.program, "short");
+                success = 1;
+                process_start(&washing_machine_process, NULL);
+            }
+        } else {
+            if (process_is_running(&washing_machine_process))
+                process_exit(&washing_machine_process);
+
+            success = 1;
             washing_machine.mode = false;
-
-        success = 1;
+        }
     }
 
     if (!success) {
         LOG_DBG("Can not change the washing_machine mode\n");
         coap_set_status_code(response, BAD_REQUEST_4_00);
+    } else if (success == 2) {
+        LOG_DBG("Washing machine was already running\n");
     } else {
         if (washing_machine.mode)
             LOG_DBG("Washing machine mode set to on with program: %s\n",

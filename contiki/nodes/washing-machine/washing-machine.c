@@ -23,6 +23,9 @@ AUTOSTART_PROCESSES(&smart_washing_machine);
 
 static void response_handler(coap_message_t *response)
 {
+    if (response == NULL)
+        return;
+        
     LOG_DBG("Response %i\n", response->type);
     result = response->type;
 }
@@ -38,7 +41,8 @@ PROCESS_THREAD(smart_washing_machine, ev, data)
 
     coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
 
-    do {
+    do
+    {
         coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
         coap_set_header_uri_path(request, (const char *)&SERVER_REGISTRATION);
 

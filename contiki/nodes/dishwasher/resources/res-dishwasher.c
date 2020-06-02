@@ -12,6 +12,8 @@
 #define LOG_MODULE "ResDishwasher"
 #define LOG_LEVEL LOG_LEVEL_DBG
 #define MAX_AGE 60
+#define SHORT_PROGRAM (20)
+#define LONG_PROGRAM (40)
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,
                             uint8_t *buffer, uint16_t preferred_size,
@@ -34,6 +36,26 @@ RESOURCE(res_dishwasher,
          "payload=mode:on|off,program:short|long;"
          "rt=\"String\"\n",
          res_get_handler, res_post_put_handler, res_post_put_handler, NULL);
+
+PROCESS(dishwasher_process, "Dishwasher program mode process");
+
+PROCESS_THREAD(dishwasher_process, ev, data)
+{
+    static struct etimer timer;
+    process_start(&dishwasher_process, NULL);
+
+    PROCESS_BEGIN();
+
+    if (!strcmp(dishwasher.program, "short"))
+        etimer_set(&timer, CLOCK_SECOND * SHORT_PROGRAM);
+    else
+        etimer_set(&timer, CLOCK_SECOND * LONG_PROGRAM);
+
+    PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&timer));
+    dishwasher.mode = false;
+
+    PROCESS_END();
+}
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response,
                             uint8_t *buffer, uint16_t preferred_size,
@@ -82,24 +104,37 @@ static void res_post_put_handler(coap_message_t *request,
 
     if (len_mode) {
         if (!strncmp("\"on\"", mode, len_mode)) {
-            size_t len_program = coap_get_json_variable(
-                (const char *)request->payload, request->payload_len,
-                "\"program\"", &program);
+            if (dishwasher.mode && process_is_running(&dishwasher_process)) {
+                success = 2;
+            } else {
 
-            dishwasher.mode = true;
-            if (!strncmp("\"long\"", program, len_program))
-                strcpy(dishwasher.program, "long");
-            else
-                strcpy(dishwasher.program, "short");
-        } else
+                size_t len_program = coap_get_json_variable(
+                    (const char *)request->payload, request->payload_len,
+                    "\"program\"", &program);
+
+                dishwasher.mode = true;
+                if (!strncmp("\"long\"", program, len_program))
+                    strcpy(dishwasher.program, "long");
+                else
+                    strcpy(dishwasher.program, "short");
+
+                success = 1;
+                process_start(&dishwasher_process, NULL);
+            }
+        } else {
+            if (process_is_running(&dishwasher_process))
+                process_exit(&dishwasher_process);
+
+            success = 1;
             dishwasher.mode = false;
-
-        success = 1;
+        }
     }
 
     if (!success) {
         LOG_DBG("Can not change the dishwasher mode\n");
         coap_set_status_code(response, BAD_REQUEST_4_00);
+    } else if (success == 2) {
+        LOG_DBG("Dishwasher was already running\n");
     } else {
         if (dishwasher.mode)
             LOG_DBG("Dishwasher mode set to on with program: %s\n",
@@ -107,29 +142,4 @@ static void res_post_put_handler(coap_message_t *request,
         else
             LOG_DBG("Dishwasher mode set to off\n");
     }
-}
-
-#define SHORT_PROGRAM (20)
-#define LONG_PROGRAM (60)
-
-PROCESS(dishwasher_program, "Dishwasher program mode process");
-
-PROCESS_THREAD(dishwasher_program, ev, data)
-{
-    static struct etimer timer;
-    process_start(&dishwasher_program, NULL);
-
-    PROCESS_BEGIN();
-
-    if (!strcmp(data, "short"))
-        etimer_set(&timer, CLOCK_SECOND * SHORT_PROGRAM);
-    else 
-        etimer_set(&timer, CLOCK_SECOND * LONG_PROGRAM);
-
-    PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&timer));
-    dishwasher.mode = false;
-
-    etimer_reset(&timer);
-
-    PROCESS_END();
 }

@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define LOG_MODULE "Smart air conditioner"
+#define LOG_MODULE "Smart thermostat"
 #define LOG_LEVEL LOG_LEVEL_DBG
 
 #define SERVER_EP ("coap://[fd00::1]:5683")
@@ -16,12 +16,10 @@
 
 extern coap_resource_t res_temperature;
 extern coap_resource_t res_humidity;
-extern coap_resource_t res_humidifier;
-extern coap_resource_t res_temp_regulator;
 
 static coap_message_type_t result = COAP_TYPE_RST;
 
-PROCESS(smart_conditioner, "Smart air conditioner");
+PROCESS(smart_conditioner, "Smart thermostat");
 AUTOSTART_PROCESSES(&smart_conditioner);
 
 static void response_handler(coap_message_t *response)
@@ -40,10 +38,8 @@ PROCESS_THREAD(smart_conditioner, ev, data)
 
     PROCESS_BEGIN();
 
-    coap_activate_resource(&res_temperature, "smart-conditioner/temperature");
-    coap_activate_resource(&res_humidity, "smart-conditioner/humidity");
-    coap_activate_resource(&res_humidifier, "smart-conditioner/humidifier");
-    coap_activate_resource(&res_temp_regulator, "smart-conditioner/temp-regulator");
+    coap_activate_resource(&res_temperature, "smart-thermostat/temperature");
+    coap_activate_resource(&res_humidity, "smart-thermostat/humidity");
 
     coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
 

@@ -1,7 +1,8 @@
-CONTIKI_PROJECT = led
+CONTIKI_PROJECT = conditioner
+
 all: $(CONTIKI_PROJECT)
 
-CONTIKI = ../../../../
+CONTIKI = ../../../../..
 MODULES_REL += ./resources
 
 include $(CONTIKI)/Makefile.dir-variables
